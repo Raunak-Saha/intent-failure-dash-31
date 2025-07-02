@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -599,7 +600,9 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
   };
 
   const renderFailureTypesTable = () => {
-    const columns = failureTypesData.length > 0 ? Object.keys(failureTypesData[0]) : [];
+    // Only show top 5 failure types
+    const top5FailureTypes = failureTypesData.slice(0, 5);
+    const columns = top5FailureTypes.length > 0 ? Object.keys(top5FailureTypes[0]) : [];
     
     return (
       <div className="rounded-md border bg-white overflow-auto">
@@ -614,7 +617,7 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {failureTypesData.map((failure, failureIndex) => {
+            {top5FailureTypes.map((failure, failureIndex) => {
               const failureType = failure["Failure Type"];
               const intentType = failure["Intent Type"];
               const isExpanded = expandedFailureTypes.has(failureType);
@@ -719,11 +722,11 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between cursor-pointer hover:text-blue-600" onClick={handleFailureTableClick}>
-                    Top Failure Types
-                    <Badge variant="destructive">{failureTypesData.length} failure patterns</Badge>
+                    Top 5 Failure Types
+                    <Badge variant="destructive">5 failure patterns</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Categorized failure types with dissatisfaction impact. Click on "Multiple" intent types to expand breakdown. Click on failure types to view feedback records.
+                    Top 5 failure types with dissatisfaction impact. Click on "Multiple" intent types to expand breakdown. Click on failure types to view feedback records.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
