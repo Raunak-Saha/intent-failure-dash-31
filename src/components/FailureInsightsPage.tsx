@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DataTable from './DataTable';
 import InsightCards from './InsightCards';
 import SharedFilters from './SharedFilters';
@@ -13,78 +15,63 @@ import FailureDrilldown from './FailureDrilldown';
 const failureTypesData = [
   {
     "Failure Type": "Person Scoping Issue",
-    "Intent Type": "Find emails from Person",
-    "DSAT Count": 3
+    "Intent Type": "Multiple",
+    "DSAT Count": 5
   },
   {
     "Failure Type": "Incomplete results",
-    "Intent Type": "Find emails from Person",
-    "DSAT Count": 2
+    "Intent Type": "Multiple",
+    "DSAT Count": 7
   },
   {
     "Failure Type": "Keyword Matching Issue",
-    "Intent Type": "Find emails about a Topic",
+    "Intent Type": "Find Topic",
     "DSAT Count": 4
   },
   {
     "Failure Type": "Missing important context",
-    "Intent Type": "Find emails about a Topic",
-    "DSAT Count": 2
-  },
-  {
-    "Failure Type": "Staleness",
-    "Intent Type": "Find emails with files",
+    "Intent Type": "Multiple",
     "DSAT Count": 3
   },
   {
-    "Failure Type": "Missing important emails",
-    "Intent Type": "Find emails based on multiple people",
-    "DSAT Count": 2
+    "Failure Type": "Staleness",
+    "Intent Type": "Multiple",
+    "DSAT Count": 10
   },
   {
-    "Failure Type": "Incomplete results",
-    "Intent Type": "Find emails with URLs",
-    "DSAT Count": 5
+    "Failure Type": "Missing important emails",
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
   },
   {
     "Failure Type": "Duplicate",
-    "Intent Type": "Find emails from a company",
-    "DSAT Count": 1
-  },
-  {
-    "Failure Type": "Staleness",
-    "Intent Type": "Find emails about a Project",
+    "Intent Type": "Multiple",
     "DSAT Count": 4
   },
   {
     "Failure Type": "Email Scoping Issue",
-    "Intent Type": "Find email with Subject",
-    "DSAT Count": 2
+    "Intent Type": "Multiple",
+    "DSAT Count": 4
   },
   {
     "Failure Type": "Irrelevant emails",
-    "Intent Type": "Find emails based on relationships",
-    "DSAT Count": 3
+    "Intent Type": "Multiple",
+    "DSAT Count": 4
   },
   {
     "Failure Type": "Inaccurate Count of results",
-    "Intent Type": "Find emails based on Roles",
-    "DSAT Count": 2
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
   },
   {
     "Failure Type": "Missing explainability",
-    "Intent Type": "Find unread emails",
-    "DSAT Count": 4
+    "Intent Type": "Multiple",
+    "DSAT Count": 5
   },
   {
     "Failure Type": "Apology",
     "Intent Type": "Find emails by date range",
     "DSAT Count": 1
-  },
-  {
-    "Failure Type": "Duplicate",
-    "Intent Type": "Find emails by date",
-    "DSAT Count": 3
   },
   {
     "Failure Type": "Memorization",
@@ -97,37 +84,82 @@ const failureTypesData = [
     "DSAT Count": 5
   },
   {
-    "Failure Type": "Person Scoping Issue",
-    "Intent Type": "Find emails with Task",
-    "DSAT Count": 2
-  },
-  {
     "Failure Type": "Task Scoping Issue",
-    "Intent Type": "Find emails pending Action Item",
-    "DSAT Count": 3
+    "Intent Type": "Multiple",
+    "DSAT Count": 5
   },
   {
     "Failure Type": "Folder Scoping Issue",
-    "Intent Type": "Find emails with Unanswered question",
-    "DSAT Count": 4
-  },
-  {
-    "Failure Type": "Email Scoping Issue",
-    "Intent Type": "Find emails pending reply",
-    "DSAT Count": 2
-  },
-  {
-    "Failure Type": "Staleness",
-    "Intent Type": "Find emails with follow up",
-    "DSAT Count": 3
+    "Intent Type": "Multiple",
+    "DSAT Count": 5
   }
 ];
+
+// Detailed breakdown for "Multiple" intent types
+const failureTypeIntentBreakdown = {
+  "Person Scoping Issue": [
+    { "Intent Type": "Find Person", "DSAT Count": 3 },
+    { "Intent Type": "Find Topic", "DSAT Count": 2 }
+  ],
+  "Incomplete results": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 },
+    { "Intent Type": "Find Time Range", "DSAT Count": 1 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Missing important context": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Staleness": [
+    { "Intent Type": "Find Topic", "DSAT Count": 3 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 3 },
+    { "Intent Type": "Find Time Range", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 2 }
+  ],
+  "Missing important emails": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 1 }
+  ],
+  "Duplicate": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 1 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Email Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 2 }
+  ],
+  "Irrelevant emails": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Inaccurate Count of results": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Missing explainability": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 2 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Task Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 3 },
+    { "Intent Type": "Find Person", "DSAT Count": 2 }
+  ],
+  "Folder Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 3 },
+    { "Intent Type": "Find Person", "DSAT Count": 2 }
+  ]
+};
 
 const failureInsights = [
   {
     id: "top_failures",
     label: "Top 3 Failure Types",
-    value: "Incomplete results (7), Staleness (7), Keyword Matching Issue (4)",
+    value: "Staleness (10), Incomplete results (7), Person Scoping Issue (5)",
     style: "highlight" as const
   },
   {
@@ -145,14 +177,19 @@ const failureInsights = [
   {
     id: "emerging_failure",
     label: "New Emerging Failure",
-    value: "Email Scoping Issue (2 occurrences)",
+    value: "Email Scoping Issue (4 occurrences)",
     style: "accent" as const
   }
 ];
 
-const FailureInsightsPage = () => {
+interface FailureInsightsPageProps {
+  onNavigateToTab?: (tab: string, intentType?: string, failureType?: string) => void;
+}
+
+const FailureInsightsPage = ({ onNavigateToTab }: FailureInsightsPageProps) => {
   const [selectedFailureType, setSelectedFailureType] = useState<string | null>(null);
   const [selectedFailureFilter, setSelectedFailureFilter] = useState<string>("all");
+  const [expandedFailureTypes, setExpandedFailureTypes] = useState<Set<string>>(new Set());
 
   // Get unique failure types and their counts
   const failureTypeCounts = useMemo(() => {
@@ -181,6 +218,129 @@ const FailureInsightsPage = () => {
     setSelectedFailureType(null);
   };
 
+  const handleFailureRowClick = (row: any) => {
+    // Navigate to feedback records with failure type filter
+    const failureType = row["Failure Type"];
+    if (onNavigateToTab) {
+      onNavigateToTab('feedback-records', undefined, failureType);
+    }
+  };
+
+  const handleFailureIntentTypeClick = (row: any) => {
+    const failureType = row["Failure Type"];
+    const intentType = row["Intent Type"];
+    
+    if (intentType === "Multiple") {
+      // Toggle expanded state for failure types with multiple intents
+      const newExpanded = new Set(expandedFailureTypes);
+      if (newExpanded.has(failureType)) {
+        newExpanded.delete(failureType);
+      } else {
+        newExpanded.add(failureType);
+      }
+      setExpandedFailureTypes(newExpanded);
+    } else {
+      // Navigate to feedback records with filters applied
+      if (onNavigateToTab) {
+        onNavigateToTab('feedback-records', intentType, failureType);
+      }
+    }
+  };
+
+  const handleFailureTypeIntentClick = (intentType: string, failureType: string) => {
+    // Navigate to feedback records with filters applied
+    if (onNavigateToTab) {
+      onNavigateToTab('feedback-records', intentType, failureType);
+    }
+  };
+
+  const formatCellValue = (value: any) => {
+    if (typeof value === 'number') {
+      if (value < 1 && value > 0) {
+        return `${(value * 100).toFixed(1)}%`;
+      }
+      return value % 1 === 0 ? value.toString() : value.toFixed(2);
+    }
+    return String(value);
+  };
+
+  const renderFailureTypesTable = () => {
+    const columns = failureTypesData.length > 0 ? Object.keys(failureTypesData[0]) : [];
+    
+    return (
+      <div className="rounded-md border bg-white overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              {columns.map((column) => (
+                <TableHead key={column} className="font-semibold">
+                  {column}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredFailureData.map((failure, failureIndex) => {
+              const failureType = failure["Failure Type"];
+              const intentType = failure["Intent Type"];
+              const isExpanded = expandedFailureTypes.has(failureType);
+              const intentBreakdown = failureTypeIntentBreakdown[failureType] || [];
+              
+              return (
+                <React.Fragment key={failureIndex}>
+                  {/* Main failure row */}
+                  <TableRow className="hover:bg-gray-50 cursor-pointer">
+                    <TableCell 
+                      className="font-medium cursor-pointer hover:text-blue-600 hover:underline"
+                      onClick={() => handleFailureRowClick(failure)}
+                    >
+                      {failure["Failure Type"]}
+                    </TableCell>
+                    <TableCell 
+                      className="cursor-pointer"
+                      onClick={() => handleFailureIntentTypeClick(failure)}
+                    >
+                      {intentType === "Multiple" ? (
+                        <div className="flex items-center space-x-2">
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          <span className="text-blue-600 hover:underline">{intentType}</span>
+                        </div>
+                      ) : (
+                        <span className="text-blue-600 hover:underline">{intentType}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-mono">
+                      {formatCellValue(failure["DSAT Count"])}
+                    </TableCell>
+                  </TableRow>
+                  
+                  {/* Expanded intent breakdown for "Multiple" types */}
+                  {isExpanded && intentType === "Multiple" && intentBreakdown.map((intent, intentIndex) => (
+                    <TableRow 
+                      key={`${failureIndex}-${intentIndex}`} 
+                      className="bg-gray-25 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleFailureTypeIntentClick(intent["Intent Type"], failureType)}
+                    >
+                      <TableCell className="pl-8 text-sm italic text-gray-600">
+                        ↳ {failureType}
+                      </TableCell>
+                      <TableCell className="pl-8">
+                        <span className="text-blue-600 hover:underline text-sm">{intent["Intent Type"]}</span>
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {formatCellValue(intent["DSAT Count"])}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   if (selectedFailureType) {
     return (
       <FailureDrilldown 
@@ -202,11 +362,11 @@ const FailureInsightsPage = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  Top Failure Types
+                  All failure types
                   <Badge variant="destructive">{filteredFailureData.length} failure patterns</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Categorized failure types with dissatisfaction impact
+                  Categorized failure types with dissatisfaction impact. Click on "Multiple" intent types to expand breakdown. Click on failure types to view feedback records.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -229,13 +389,14 @@ const FailureInsightsPage = () => {
                   </Select>
                 </div>
                 
-                <DataTable 
-                  data={filteredFailureData}
-                  title="Failure Analysis Overview"
-                  defaultSort={["DSAT Count", "desc"]}
-                  onRowClick={handleFailureTypeClick}
-                  clickableColumn="Failure Type"
-                />
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-500">
+                    • Click on Failure Type to view filtered feedback records
+                    • Click on "Multiple" intent types to expand/collapse intent breakdown
+                    • Click on specific intent types to view filtered feedback records
+                  </div>
+                  {renderFailureTypesTable()}
+                </div>
               </CardContent>
             </Card>
           </div>
