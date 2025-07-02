@@ -8,7 +8,6 @@ import DataTable from './DataTable';
 import InsightCards from './InsightCards';
 import SharedFilters from './SharedFilters';
 import IntentDrilldown from './IntentDrilldown';
-import FailureTypesDrilldown from './FailureTypesDrilldown';
 
 // Enhanced intent data with updated column names to match Feedback Records
 const intentData = [
@@ -281,14 +280,14 @@ const intentFailureTypes = {
 
 const failureTypesData = [
   {
-    "Failure Type": "Person Scoping Issue",
-    "Intent Type": "Find Person",
-    "DSAT Count": 3
+    "Failure Type": "Incomplete results",
+    "Intent Type": "Multiple",
+    "DSAT Count": 6
   },
   {
-    "Failure Type": "Incomplete results",
-    "Intent Type": "Find Person",
-    "DSAT Count": 2
+    "Failure Type": "Staleness",
+    "Intent Type": "Multiple", 
+    "DSAT Count": 6
   },
   {
     "Failure Type": "Keyword Matching Issue",
@@ -296,39 +295,69 @@ const failureTypesData = [
     "DSAT Count": 4
   },
   {
-    "Failure Type": "Missing important context",
-    "Intent Type": "Find Topic",
-    "DSAT Count": 2
-  },
-  {
-    "Failure Type": "Staleness",
-    "Intent Type": "Find Attachment",
-    "DSAT Count": 3
-  },
-  {
-    "Failure Type": "Missing important emails",
-    "Intent Type": "Find Topic",
-    "DSAT Count": 2
-  },
-  {
-    "Failure Type": "Incomplete results",
-    "Intent Type": "Find Attachment",
+    "Failure Type": "External Emails",
+    "Intent Type": "Find recent emails",
     "DSAT Count": 5
   },
   {
-    "Failure Type": "Duplicate",
-    "Intent Type": "Find Topic",
-    "DSAT Count": 1
-  },
-  {
-    "Failure Type": "Staleness",
-    "Intent Type": "Find Time Range",
+    "Failure Type": "Missing explainability",
+    "Intent Type": "Multiple",
     "DSAT Count": 4
   },
   {
-    "Failure Type": "Email Scoping Issue",
-    "Intent Type": "Find Person",
+    "Failure Type": "Person Scoping Issue",
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
+  },
+  {
+    "Failure Type": "Irrelevant emails",
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
+  },
+  {
+    "Failure Type": "Duplicate",
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
+  },
+  {
+    "Failure Type": "Task Scoping Issue",
+    "Intent Type": "Multiple",
+    "DSAT Count": 3
+  },
+  {
+    "Failure Type": "Missing important context",
+    "Intent Type": "Multiple",
     "DSAT Count": 2
+  },
+  {
+    "Failure Type": "Missing important emails",
+    "Intent Type": "Multiple",
+    "DSAT Count": 2
+  },
+  {
+    "Failure Type": "Email Scoping Issue",
+    "Intent Type": "Multiple",
+    "DSAT Count": 2
+  },
+  {
+    "Failure Type": "Inaccurate Count of results",
+    "Intent Type": "Multiple",
+    "DSAT Count": 2
+  },
+  {
+    "Failure Type": "Memorization",
+    "Intent Type": "Find last email",
+    "DSAT Count": 2
+  },
+  {
+    "Failure Type": "Apology",
+    "Intent Type": "Find emails by date range",
+    "DSAT Count": 1
+  },
+  {
+    "Failure Type": "Folder Scoping Issue",
+    "Intent Type": "Multiple",
+    "DSAT Count": 1
   }
 ];
 
@@ -365,7 +394,6 @@ interface HighlightsPageProps {
 
 const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
   const [selectedIntentType, setSelectedIntentType] = useState<string | null>(null);
-  const [selectedFailureType, setSelectedFailureType] = useState<string | null>(null);
   const [showIntentDrilldown, setShowIntentDrilldown] = useState(true); // Changed to true by default
   const [expandedIntents, setExpandedIntents] = useState<Set<string>>(new Set());
 
@@ -390,7 +418,9 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
   };
 
   const handleFailureRowClick = (row: any) => {
-    setSelectedFailureType(row["Failure Type"]);
+    // Navigate to feedback records with failure type filter
+    const failureType = row["Failure Type"];
+    onNavigateToTab('feedback-records', undefined, failureType);
   };
 
   const handleFailureTypeClick = (intentType: string, failureType: string) => {
@@ -400,7 +430,6 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
 
   const handleCloseDrilldown = () => {
     setSelectedIntentType(null);
-    setSelectedFailureType(null);
     setShowIntentDrilldown(false);
     setExpandedIntents(new Set());
   };
@@ -502,11 +531,6 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
           selectedIntentType={selectedIntentType} 
           onClose={handleCloseDrilldown}
         />
-      ) : selectedFailureType ? (
-        <FailureTypesDrilldown
-          selectedFailureType={selectedFailureType}
-          onClose={handleCloseDrilldown}
-        />
       ) : (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -546,7 +570,7 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
                     <Badge variant="destructive">{failureTypesData.length} failure patterns</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Categorized failure types with dissatisfaction impact (Click to view details or click on a row for drilldown)
+                    Categorized failure types with dissatisfaction impact (Click to view details or click on a row to view feedback records)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
