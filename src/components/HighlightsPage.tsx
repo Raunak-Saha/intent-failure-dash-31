@@ -361,6 +361,62 @@ const failureTypesData = [
   }
 ];
 
+// Detailed breakdown for "Multiple" intent types
+const failureTypeIntentBreakdown = {
+  "Incomplete results": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Staleness": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 2 },
+    { "Intent Type": "Find Time Range", "DSAT Count": 2 }
+  ],
+  "Missing explainability": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Person Scoping Issue": [
+    { "Intent Type": "Find Person", "DSAT Count": 2 },
+    { "Intent Type": "Find Topic", "DSAT Count": 1 }
+  ],
+  "Irrelevant emails": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Duplicate": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 1 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Task Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 2 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Missing important context": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Missing important emails": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 },
+    { "Intent Type": "Find Attachment", "DSAT Count": 1 }
+  ],
+  "Email Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 },
+    { "Intent Type": "Find Person", "DSAT Count": 1 }
+  ],
+  "Inaccurate Count of results": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 },
+    { "Intent Type": "Find Status", "DSAT Count": 1 }
+  ],
+  "Folder Scoping Issue": [
+    { "Intent Type": "Find Topic", "DSAT Count": 1 }
+  ]
+};
+
 const highlightInsights = [
   {
     id: "emerging_intent",
@@ -396,6 +452,7 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
   const [selectedIntentType, setSelectedIntentType] = useState<string | null>(null);
   const [showIntentDrilldown, setShowIntentDrilldown] = useState(true); // Changed to true by default
   const [expandedIntents, setExpandedIntents] = useState<Set<string>>(new Set());
+  const [expandedFailureTypes, setExpandedFailureTypes] = useState<Set<string>>(new Set());
 
   const handleIntentTableClick = () => {
     onNavigateToTab('intents');
@@ -426,6 +483,25 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
   const handleFailureTypeClick = (intentType: string, failureType: string) => {
     // Navigate to feedback records with filters applied
     onNavigateToTab('feedback-records', intentType, failureType);
+  };
+
+  const handleFailureIntentTypeClick = (row: any) => {
+    const failureType = row["Failure Type"];
+    const intentType = row["Intent Type"];
+    
+    if (intentType === "Multiple") {
+      // Toggle expanded state for failure types with multiple intents
+      const newExpanded = new Set(expandedFailureTypes);
+      if (newExpanded.has(failureType)) {
+        newExpanded.delete(failureType);
+      } else {
+        newExpanded.add(failureType);
+      }
+      setExpandedFailureTypes(newExpanded);
+    } else {
+      // Navigate to feedback records with filters applied
+      onNavigateToTab('feedback-records', intentType, failureType);
+    }
   };
 
   const handleCloseDrilldown = () => {
@@ -522,6 +598,83 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
     );
   };
 
+  const renderFailureTypesTable = () => {
+    const columns = failureTypesData.length > 0 ? Object.keys(failureTypesData[0]) : [];
+    
+    return (
+      <div className="rounded-md border bg-white overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              {columns.map((column) => (
+                <TableHead key={column} className="font-semibold">
+                  {column}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {failureTypesData.map((failure, failureIndex) => {
+              const failureType = failure["Failure Type"];
+              const intentType = failure["Intent Type"];
+              const isExpanded = expandedFailureTypes.has(failureType);
+              const intentBreakdown = failureTypeIntentBreakdown[failureType] || [];
+              
+              return (
+                <React.Fragment key={failureIndex}>
+                  {/* Main failure row */}
+                  <TableRow className="hover:bg-gray-50 cursor-pointer">
+                    <TableCell 
+                      className="font-medium cursor-pointer hover:text-blue-600 hover:underline"
+                      onClick={() => handleFailureRowClick(failure)}
+                    >
+                      {failure["Failure Type"]}
+                    </TableCell>
+                    <TableCell 
+                      className="cursor-pointer"
+                      onClick={() => handleFailureIntentTypeClick(failure)}
+                    >
+                      {intentType === "Multiple" ? (
+                        <div className="flex items-center space-x-2">
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          <span className="text-blue-600 hover:underline">{intentType}</span>
+                        </div>
+                      ) : (
+                        <span className="text-blue-600 hover:underline">{intentType}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-mono">
+                      {formatCellValue(failure["DSAT Count"])}
+                    </TableCell>
+                  </TableRow>
+                  
+                  {/* Expanded intent breakdown for "Multiple" types */}
+                  {isExpanded && intentType === "Multiple" && intentBreakdown.map((intent, intentIndex) => (
+                    <TableRow 
+                      key={`${failureIndex}-${intentIndex}`} 
+                      className="bg-gray-25 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleFailureTypeClick(intent["Intent Type"], failureType)}
+                    >
+                      <TableCell className="pl-8 text-sm italic text-gray-600">
+                        ↳ {failureType}
+                      </TableCell>
+                      <TableCell className="pl-8">
+                        <span className="text-blue-600 hover:underline text-sm">{intent["Intent Type"]}</span>
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {formatCellValue(intent["DSAT Count"])}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <SharedFilters />
@@ -570,17 +723,18 @@ const HighlightsPage = ({ onNavigateToTab }: HighlightsPageProps) => {
                     <Badge variant="destructive">{failureTypesData.length} failure patterns</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Categorized failure types with dissatisfaction impact (Click to view details or click on a row to view feedback records)
+                    Categorized failure types with dissatisfaction impact. Click on "Multiple" intent types to expand breakdown. Click on failure types to view feedback records.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <DataTable 
-                    data={failureTypesData}
-                    title="Failure Analysis Overview"
-                    defaultSort={["DSAT Count", "desc"]}
-                    onRowClick={handleFailureRowClick}
-                    clickableColumn="Failure Type"
-                  />
+                  <div className="space-y-4">
+                    <div className="text-sm text-gray-500">
+                      • Click on Failure Type to view filtered feedback records
+                      • Click on "Multiple" intent types to expand/collapse intent breakdown
+                      • Click on specific intent types to view filtered feedback records
+                    </div>
+                    {renderFailureTypesTable()}
+                  </div>
                 </CardContent>
               </Card>
             </div>
